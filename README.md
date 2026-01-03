@@ -11,20 +11,16 @@
 
 ### 1. Клонируйте репозиторий
 
-git clone https://github.com/ВАШ_USERNAME/ИМЯ_РЕПОЗИТОРИЯ.git
-cd ИМЯ_РЕПОЗИТОРИЯ
+`git clone https://github.com/jenka-ej/TicTacToeTest`
+`cd TicTacToeTest`
 
 ### 2. Установите зависимости
 
-sh
-npm install
-или
-sh
-yarn install
+`npm install`
 
 ### 3. Запустите проект в режиме разработки
 
-npm run dev или yarn dev
+`npm run dev`
 
 Приложение будет доступно по адресу `http://localhost:5173` (или другому порту, если 5173 занят).
 
