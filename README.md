@@ -11,7 +11,7 @@
 
 ### 1. Клонируйте репозиторий
 
-`git clone https://github.com/jenka-ej/TicTacToeTest`
+```git clone https://github.com/jenka-ej/TicTacToeTest```
 `cd TicTacToeTest`
 
 ### 2. Установите зависимости
