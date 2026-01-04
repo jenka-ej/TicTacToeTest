@@ -1,4 +1,5 @@
 import { Box, Button } from "@mui/material"
+import { memo, useMemo } from "react"
 import { getCellStyles } from "../shared/lib/cellStyles"
 import type {
   IBoardSize,
@@ -13,18 +14,25 @@ interface GameBoardProps {
   handleCellClick: (cellKey: string) => void
 }
 
-const GameBoard = ({
-  boardSize,
-  gameState,
-  handleCellClick
-}: GameBoardProps) => {
-  const { firstRowIndex, lastRowIndex, firstColIndex, lastColIndex } = boardSize
-  const { boardMoves, isGameOver, winnerMoves } = gameState
-  const rowsSize = lastRowIndex - firstRowIndex + 1
-  const colsSize = lastColIndex - firstColIndex + 1
-
-  const renderCell = (cellKey: string, cellValue: TCellValue) => {
+const Cell = memo(
+  ({
+    cellKey,
+    cellValue,
+    isWinner,
+    isGameOver,
+    handleCellClick
+  }: {
+    cellKey: string
+    cellValue: TCellValue
+    isWinner: boolean
+    isGameOver: boolean
+    handleCellClick: (key: string) => void
+  }) => {
     const isOccupied = Boolean(cellValue)
+    const styles = useMemo(
+      () => getCellStyles(cellValue, isWinner),
+      [cellValue, isWinner]
+    )
 
     return (
       <Button
@@ -32,12 +40,46 @@ const GameBoard = ({
         variant="outlined"
         disabled={isOccupied || isGameOver}
         onClick={() => handleCellClick(cellKey)}
-        sx={getCellStyles(cellValue, winnerMoves.includes(cellKey))}
+        sx={styles}
       >
         {cellValue}
       </Button>
     )
   }
+)
+
+const GameBoard = ({
+  boardSize,
+  gameState,
+  handleCellClick
+}: GameBoardProps) => {
+  const { firstRowIndex, lastRowIndex, firstColIndex, lastColIndex } = boardSize
+  const { boardMoves, winnerMoves, isGameOver } = gameState
+
+  const winnerMovesSet = useMemo(() => new Set(winnerMoves), [winnerMoves])
+
+  const rowsSize = useMemo(
+    () => lastRowIndex - firstRowIndex + 1,
+    [firstRowIndex, lastRowIndex]
+  )
+  const colsSize = useMemo(
+    () => lastColIndex - firstColIndex + 1,
+    [firstColIndex, lastColIndex]
+  )
+
+  const columns = useMemo(() => {
+    return Array.from({ length: colsSize }).map((_, colIndex: number) => {
+      const colKey = firstColIndex + colIndex
+      return colKey
+    })
+  }, [colsSize, firstColIndex])
+
+  const rows = useMemo(() => {
+    return Array.from({ length: rowsSize }).map((_, rowIndex: number) => {
+      const rowKey = firstRowIndex + rowIndex
+      return rowKey
+    })
+  }, [rowsSize, firstRowIndex])
 
   return (
     <Box
@@ -48,8 +90,7 @@ const GameBoard = ({
         gridTemplateColumns: `repeat(${colsSize}, 40px)`
       }}
     >
-      {Array.from({ length: colsSize }).map((_, colIndex: number) => {
-        const colKey = firstColIndex + colIndex
+      {columns.map((colKey) => {
         return (
           <Box
             key={colKey}
@@ -59,11 +100,21 @@ const GameBoard = ({
               gap: "4px"
             }}
           >
-            {Array.from({ length: rowsSize }).map((_, rowIndex: number) => {
-              const rowKey = firstRowIndex + rowIndex
+            {rows.map((rowKey) => {
               const cellKey = convertToKey(colKey, rowKey)
               const cellValue = boardMoves.get(cellKey) as TCellValue
-              return renderCell(cellKey, cellValue)
+              const isWinner = winnerMovesSet.has(cellKey)
+
+              return (
+                <Cell
+                  key={cellKey}
+                  cellKey={cellKey}
+                  cellValue={cellValue}
+                  isWinner={isWinner}
+                  isGameOver={isGameOver}
+                  handleCellClick={handleCellClick}
+                />
+              )
             })}
           </Box>
         )

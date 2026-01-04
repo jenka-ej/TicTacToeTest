@@ -74,12 +74,15 @@ export const checkWinner = (
     .at(-1)
 
   if (!lastPlayerMove) return false
+
   const results = DIRECTIONS.map((direction) =>
     checkDirection(lastPlayerMove, new Map(playerMoves), direction)
   )
+
   const gameOver = results
     .map(({ countInRow }) => countInRow >= RESULT_TO_WIN)
     .includes(true)
+
   return gameOver
     ? (results.find(
         ({ countInRow }) => countInRow >= RESULT_TO_WIN
@@ -93,6 +96,7 @@ export const checkBoardSizeExtension = (
 ): IBoardSize => {
   const { firstRowIndex, lastRowIndex, firstColIndex, lastColIndex } = boardSize
   const { row, column } = convertFromKey(lastPlayerMove)
+
   return {
     firstRowIndex: firstRowIndex === row ? firstRowIndex - 1 : firstRowIndex,
     lastRowIndex: lastRowIndex === row ? lastRowIndex + 1 : lastRowIndex,
@@ -107,12 +111,14 @@ export const checkBoardSizeHistoryGame = (
   const boardMovesToObj = [...boardMoves].map(([cellKey]) =>
     convertFromKey(cellKey)
   )
+
   const firstRowIndex = Math.min(...boardMovesToObj.map(({ row }) => row)) - 1
   const lastRowIndex = Math.max(...boardMovesToObj.map(({ row }) => row)) + 1
   const firstColIndex =
     Math.min(...boardMovesToObj.map(({ column }) => column)) - 1
   const lastColIndex =
     Math.max(...boardMovesToObj.map(({ column }) => column)) + 1
+
   return {
     firstRowIndex: firstRowIndex <= 0 ? firstRowIndex : 0,
     lastRowIndex: lastRowIndex >= 7 ? lastRowIndex : 7,

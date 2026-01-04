@@ -1,6 +1,6 @@
 import CheckIcon from "@mui/icons-material/Check"
 import { Alert, Box, Button, Container, Paper, Typography } from "@mui/material"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import GameBoard from "../components/GameBoard"
 import { defaultBoardSize } from "../shared/const/game.const"
@@ -77,36 +77,39 @@ const GamePage = () => {
     navigate("/history")
   }
 
-  const handleCellClick = (cellKey: string) => {
-    if (!gameState) return
+  const handleCellClick = useCallback(
+    (cellKey: string) => {
+      if (!gameState) return
 
-    const { boardMoves, currentPlayer, winner, winnerMoves } = gameState
+      const { boardMoves, currentPlayer, winner, winnerMoves } = gameState
 
-    if (boardMoves.has(cellKey)) return
+      if (boardMoves.has(cellKey)) return
 
-    const newBoardMoves = new Map(boardMoves).set(cellKey, currentPlayer)
-    const newPlayer = currentPlayer === "X" ? "O" : "X"
-    const winResult = checkWinner(newBoardMoves, currentPlayer)
-    const newWinner = winResult ? currentPlayer : winner
-    const newWinnerMoves = winResult ? winResult.cellsInRow : winnerMoves
+      const newBoardMoves = new Map(boardMoves).set(cellKey, currentPlayer)
+      const newPlayer = currentPlayer === "X" ? "O" : "X"
+      const winResult = checkWinner(newBoardMoves, currentPlayer)
+      const newWinner = winResult ? currentPlayer : winner
+      const newWinnerMoves = winResult ? winResult.cellsInRow : winnerMoves
 
-    const newGameState: IGameState = {
-      ...gameState,
-      boardMoves: newBoardMoves,
-      currentPlayer: newPlayer,
-      winner: newWinner,
-      winnerMoves: newWinnerMoves,
-      isGameOver: Boolean(newWinner)
-    }
-    const newBoardSize = checkBoardSizeExtension(boardSize, cellKey)
+      const newGameState: IGameState = {
+        ...gameState,
+        boardMoves: newBoardMoves,
+        currentPlayer: newPlayer,
+        winner: newWinner,
+        winnerMoves: newWinnerMoves,
+        isGameOver: Boolean(newWinner)
+      }
+      const newBoardSize = checkBoardSizeExtension(boardSize, cellKey)
 
-    setGameState(newGameState)
-    setBoardSize(newBoardSize)
+      setGameState(newGameState)
+      setBoardSize(newBoardSize)
 
-    if (newWinner) {
-      saveGameToHistory(newGameState)
-    }
-  }
+      if (newWinner) {
+        saveGameToHistory(newGameState)
+      }
+    },
+    [gameState, boardSize]
+  )
 
   useEffect(() => {
     handleNewGame()
